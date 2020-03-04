@@ -45,7 +45,8 @@ module.exports = {
                 font: resolve('fonts/[family].[type]'),
                 css: resolve('scss/_[family].scss'),
                 alias: '@',
-                aliasPath: __dirname
+                aliasPath: __dirname,
+                type: ['woff', 'woff2']
             },
             watch: {
                 cwd: __dirname,

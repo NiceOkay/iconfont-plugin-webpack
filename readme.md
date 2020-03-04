@@ -26,7 +26,8 @@ new IconfontPlugin({
         font: './src/font/[family].[type]', // required - paths of generated font files
         css: './src/css/_iconfont_[family].scss', // required - paths of generated css files
         alias: '', // optional
-        aliasPath: '' // optional - will replace on alias
+        aliasPath: '', // optional - will replace on alias
+        type: ['svg', 'ttf', 'woff', 'eot'] // optional
     },
     watch: {
         pattern: 'src/asset/iconfont/**/*.svg', // required - watch these files to reload

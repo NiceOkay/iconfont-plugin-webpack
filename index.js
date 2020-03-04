@@ -49,12 +49,23 @@ Plugin.prototype.getOptions = function(options) {
 	if(typeof opts.dest.aliasPath !== 'undefined' && typeof opts.dest.aliasPath !== 'string') {
 		throw new TypeError('`aliasPath` is invalid!');
 	}
+	if(typeof opts.dest.type !== 'undefined' && !Array.isArray(opts.dest.type)) {
+		throw new TypeError('`type` is invalid!');
+	}
+	const defaultTypes = ['svg', 'ttf', 'woff', 'eot'];
 	const src = path.resolve(opts.src);
 	const dest = {
 		font: path.resolve(opts.dest.font),
 		css: path.resolve(opts.dest.css),
 		alias: typeof opts.dest.alias === 'string' ? opts.dest.alias : null,
-		aliasPath: typeof opts.dest.aliasPath === 'string' ? opts.dest.aliasPath : null
+		aliasPath: typeof opts.dest.aliasPath === 'string' ? opts.dest.aliasPath : null,
+		type: opts.dest.type
+			? opts.dest.type.filter((type) => {
+				return defaultTypes.find((defaultType) => {
+					return type === defaultType;
+				});
+			})
+			: defaultTypes
 	};
 	const cssTemplate = ('function' === typeof opts.cssTemplate
 		? opts.cssTemplate
@@ -66,7 +77,8 @@ Plugin.prototype.getOptions = function(options) {
 			font: dest.font,
 			css: dest.css,
 			alias: dest.alias,
-			aliasPath: dest.aliasPath
+			aliasPath: dest.aliasPath,
+			type: dest.type.length < 1 ? defaultTypes : dest.type
 		},
 		cssTemplate: cssTemplate,
 		family: ('string' === typeof opts.family && opts.family) || 'iconfont'
@@ -142,7 +154,7 @@ Plugin.prototype.generateFonts = function(family, files) {
 			inflate: null,
 			combinePath: true
 		});
-		const files = ['svg', 'ttf', 'woff', 'eot'].map(function(type) {
+		const files = context.options.dest.type.map(function(type) {
 			const buffer = fontCreator.write({
 				type: type,
 				hinting: true,
