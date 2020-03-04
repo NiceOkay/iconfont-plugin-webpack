@@ -70,11 +70,7 @@ $icon-prefix: '' !default;
 @if $create-font-face == true {
   @font-face {
    font-family: "__FAMILY__";
-   src: url('__RELATIVE_FONT_PATH__/__FAMILY__.eot'); /* IE9 Compat Modes */
-   src: url('__RELATIVE_FONT_PATH__/__FAMILY__.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
-      url('__RELATIVE_FONT_PATH__/__FAMILY__.woff') format('woff'), /* Pretty Modern Browsers */
-      url('__RELATIVE_FONT_PATH__/__FAMILY__.ttf')  format('truetype'), /* Safari, Android, iOS */
-      url('__RELATIVE_FONT_PATH__/__FAMILY__.svg') format('svg'); /* Legacy iOS */
+   __FONT_SRC__
   }
 }
 
@@ -110,10 +106,40 @@ module.exports = function(args) {
   }, {});
   const data = {};
   data[family] = glyphs;
+  
+  const fontSrc = (() => {
+    let types = {
+      'eot': 'embedded-opentype',
+      'ttf': 'truetype',
+      'svg': 'svg',
+      'woff': 'woff',
+      'woff2': 'woff2'
+    };
+    let str = '';
+    let src = [];
+    
+    for (let type in types) {
+      if (!args.fontTypes.includes(type)) {
+        continue;
+      }
+      
+      let query ='';
+      if ('eot' === type) {
+        str += `src: url('${pathToFonts}/${family}.${type}');\n`;
+        query = '?#iefix';
+      }
+      src.push(`url('${pathToFonts}/${family}.${type}${query}') format('${types[type]}')`);
+    }
+    
+    str += `src: ${src.join(',')};`;
+    
+    return str;
+  })();
 
     const replacements = {
         __FAMILY__: family,
-        __RELATIVE_FONT_PATH__: pathToFonts
+        //__RELATIVE_FONT_PATH__: pathToFonts
+        __FONT_SRC__: fontSrc
     };
 
     const str = TEMPLATE.replace(RegExp(Object.keys(replacements).join('|'), 'gi'), function(matched) {
