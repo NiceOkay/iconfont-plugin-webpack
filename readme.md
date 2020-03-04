@@ -24,7 +24,9 @@ new IconfontPlugin({
     family: 'iconfont', // optional - the `font-family` name. if multiple iconfonts are generated, the dir names will be used.
     dest: {
         font: './src/font/[family].[type]', // required - paths of generated font files
-        css: './src/css/_iconfont_[family].scss' // required - paths of generated css files
+        css: './src/css/_iconfont_[family].scss', // required - paths of generated css files
+        alias: '', // optional
+        aliasPath: '' // optional - will replace on alias
     },
     watch: {
         pattern: 'src/asset/iconfont/**/*.svg', // required - watch these files to reload

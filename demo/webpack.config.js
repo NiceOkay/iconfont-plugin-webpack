@@ -38,6 +38,20 @@ module.exports = {
                 pattern: 'icons-dirs/**/*.svg'
             }
         }),
+        new IconfontPlugin({
+            src: resolve('icons-default'),
+            family: 'iconfont-alias',
+            dest: {
+                font: resolve('fonts/[family].[type]'),
+                css: resolve('scss/_[family].scss'),
+                alias: '@',
+                aliasPath: __dirname
+            },
+            watch: {
+                cwd: __dirname,
+                pattern: 'icons-default/*.svg'
+            }
+        }),
         new ExtractTextPlugin('[name].css')
     ],
     module: {

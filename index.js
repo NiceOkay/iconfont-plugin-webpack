@@ -43,10 +43,18 @@ Plugin.prototype.getOptions = function(options) {
 	if(!opts.dest || 'string' !== typeof opts.dest.font || 'string' !== typeof opts.dest.css) {
 		throw new TypeError('`dest` is invalid!');
 	}
+	if(typeof opts.dest.alias !== 'undefined' && typeof opts.dest.alias !== 'string') {
+		throw new TypeError('`alias` is invalid!');
+	}
+	if(typeof opts.dest.aliasPath !== 'undefined' && typeof opts.dest.aliasPath !== 'string') {
+		throw new TypeError('`aliasPath` is invalid!');
+	}
 	const src = path.resolve(opts.src);
 	const dest = {
 		font: path.resolve(opts.dest.font),
-		css: path.resolve(opts.dest.css)
+		css: path.resolve(opts.dest.css),
+		alias: typeof opts.dest.alias === 'string' ? opts.dest.alias : null,
+		aliasPath: typeof opts.dest.aliasPath === 'string' ? opts.dest.aliasPath : null
 	};
 	const cssTemplate = ('function' === typeof opts.cssTemplate
 		? opts.cssTemplate
@@ -57,6 +65,8 @@ Plugin.prototype.getOptions = function(options) {
 		dest: {
 			font: dest.font,
 			css: dest.css,
+			alias: dest.alias,
+			aliasPath: dest.aliasPath
 		},
 		cssTemplate: cssTemplate,
 		family: ('string' === typeof opts.family && opts.family) || 'iconfont'
@@ -147,11 +157,13 @@ Plugin.prototype.generateFonts = function(family, files) {
 	}).then(function(args) {
 		const files = args.files;
 		const unicodes = args.unicodes;
-		const relativePathToFonts = path.relative(path.dirname(context.options.dest.css), path.dirname(context.options.dest.font));
+		const pathToFonts = context.options.dest.alias !== null || context.options.dest.aliasPath !== null
+			? path.resolve(path.dirname(context.options.dest.css), path.dirname(context.options.dest.font)).replace(/\\/g, '/').replace(context.options.dest.aliasPath, context.options.dest.alias)
+			: path.relative(path.dirname(context.options.dest.css), path.dirname(context.options.dest.font)).replace(/\\/g, '/');
 		const cssContent = context.options.cssTemplate({
 			unicodes: unicodes,
 			family: family,
-			fontPath: relativePathToFonts.replace(/\\/g, '/'),
+			fontPath: pathToFonts,
 		});
 		const cssPath = context.options.dest.css.replace(/\[family\]/g, family);
 
