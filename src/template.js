@@ -69,8 +69,8 @@ $icon-prefix: '' !default;
 // creates the font face tag if the variable is set to true (default)
 @if $create-font-face == true {
   @font-face {
-   font-family: "__FAMILY__";
-   __FONT_SRC__
+    font-family: "__FAMILY__";
+    __FONT_SRC__
   }
 }
 
@@ -125,13 +125,13 @@ module.exports = function(args) {
       
       let query ='';
       if ('eot' === type) {
-        str += `src: url('${pathToFonts}/${family}.${type}');\n`;
+        str += `src: url('${pathToFonts}/${family}.${type}');\n\t\t`;
         query = '?#iefix';
       }
       src.push(`url('${pathToFonts}/${family}.${type}${query}') format('${types[type]}')`);
     }
     
-    str += `src: ${src.join(',')};`;
+    str += `src: ${src.join(',\n\t\t')};`;
     
     return str;
   })();

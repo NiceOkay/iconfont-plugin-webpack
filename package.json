@@ -24,7 +24,7 @@
   },
   "license": "MIT",
   "dependencies": {
-    "fonteditor-core": "0.0.37",
+    "fonteditor-core": "^2.1.1",
     "run-plugin-webpack": "^1.0.0",
     "svg2ttf": "^4.0.2",
     "svgicons2svgfont": "^9.0.2"

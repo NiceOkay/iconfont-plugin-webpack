@@ -3,6 +3,7 @@
 const Base = require('run-plugin-webpack');
 const SvgiconsToSvgfont = require('svgicons2svgfont');
 const Font = require('fonteditor-core').Font;
+const woff2 = require('fonteditor-core').woff2;
 const fs = require('fs');
 const path = require('path');
 const svgToTtf = require('svg2ttf');
@@ -52,7 +53,7 @@ Plugin.prototype.getOptions = function(options) {
 	if(typeof opts.dest.type !== 'undefined' && !Array.isArray(opts.dest.type)) {
 		throw new TypeError('`type` is invalid!');
 	}
-	const defaultTypes = ['svg', 'ttf', 'woff', 'eot'];
+	const defaultTypes = ['eot', 'ttf', 'svg', 'woff', 'woff2'];
 	const src = path.resolve(opts.src);
 	const dest = {
 		font: path.resolve(opts.dest.font),
@@ -154,20 +155,32 @@ Plugin.prototype.generateFonts = function(family, files) {
 			inflate: null,
 			combinePath: true
 		});
-		const files = context.options.dest.type.map(function(type) {
-			const buffer = fontCreator.write({
-				type: type,
-				hinting: true,
-				deflate: null
-			});
+		
+		const files = context.options.dest.type.map(async function(type) {
+			let buffer = null;
+			
+			if (type === 'woff2') {
+				buffer = await woff2.init().then(() => {
+					return fontCreator.write({type: 'woff2'});
+				});
+			} else {
+				buffer = fontCreator.write({
+					type: type,
+					hinting: true,
+					deflate: null
+				});
+			}
+			
 			const filePath = context.options.dest.font
 				.replace(/\[family\]/g, family)
 				.replace(/\[type\]/g, type);
+			
 			return { path:filePath, contents: buffer };
 		}, []);
+		
 		return { files: files, unicodes: args.unicodes };
-	}).then(function(args) {
-		const files = args.files;
+	}).then(async function(args) {
+		const files = await Promise.all(args.files);
 		const unicodes = args.unicodes;
 		const pathToFonts = context.options.dest.alias !== null || context.options.dest.aliasPath !== null
 			? path.resolve(path.dirname(context.options.dest.css), path.dirname(context.options.dest.font)).replace(/\\/g, '/').replace(context.options.dest.aliasPath, context.options.dest.alias)
